@@ -10,7 +10,9 @@ static inline bool is_valid_cluster(fat_volume_t *volume, cluster_t cluster){
 }
 
 
-fat_error_t fat_read_entry(fat_volume_t *volume, cluster_t cluster, uint32_t *value){
+fat_error_t fat_read_entry(fat_volume_t *volume, 
+                           cluster_t cluster, 
+                           uint32_t *value){
 
     // parameter validation
     if(!volume || !value){
@@ -60,7 +62,9 @@ fat_error_t fat_read_entry(fat_volume_t *volume, cluster_t cluster, uint32_t *va
     return FAT_OK;
 }
 
-fat_error_t fat_write_entry(fat_volume_t *volume, cluster_t cluster, uint32_t value){
+fat_error_t fat_write_entry(fat_volume_t *volume, 
+                            cluster_t cluster, 
+                            uint32_t value){
 
     // parameter validation
     if(!volume){
@@ -82,9 +86,11 @@ fat_error_t fat_write_entry(fat_volume_t *volume, cluster_t cluster, uint32_t va
             value &=0x0FFF;
 
             if(cluster & 1) {
-                entry = (entry & 0x0FFF)|(value << 4);  // odd cluster: update upper 12 bits
+                // odd cluster: update upper 12 bits
+                entry = (entry & 0x0FFF)|(value << 4);
             } else {
-                entry = (entry & 0xF000)|value;         // even cluster: update lower 12 bits
+                // even cluster: update lower 12 bits
+                entry = (entry & 0xF000)|value;
             }
 
             *(uint16_t*)(&volume->fat_cache[byte_offset]) = entry;

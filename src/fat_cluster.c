@@ -1,7 +1,9 @@
 #include "fat_cluster.h"
 #include "fat_table.h"
 
-fat_error_t fat_get_next_cluster(fat_volume_t *volume, cluster_t cluster, cluster_t *next_cluster){
+fat_error_t fat_get_next_cluster(fat_volume_t *volume, 
+                                 cluster_t cluster, 
+                                 cluster_t *next_cluster){
 
     // parameter validation
     if(!volume || !next_cluster){
@@ -57,9 +59,12 @@ fat_error_t fat_allocate_cluster(fat_volume_t *volume, cluster_t *cluster){
     }
 
     // search for free cluster
-    cluster_t FAT_LAST_VALID_CLUSTER = FAT_FIRST_VALID_CLUSTER + volume->total_clusters;
+    cluster_t FAT_LAST_VALID_CLUSTER = FAT_FIRST_VALID_CLUSTER + 
+                                       volume->total_clusters;
     
-    for(cluster_t current_cluster = FAT_FIRST_VALID_CLUSTER; current_cluster < FAT_LAST_VALID_CLUSTER; current_cluster++){
+    for(cluster_t current_cluster = FAT_FIRST_VALID_CLUSTER; 
+        current_cluster < FAT_LAST_VALID_CLUSTER; 
+        current_cluster++){
         
         uint32_t value;
         fat_error_t err = fat_read_entry(volume, current_cluster, &value);

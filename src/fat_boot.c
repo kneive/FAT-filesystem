@@ -1,7 +1,8 @@
 #include "fat_boot.h"
 #include <string.h>
 
-fat_error_t fat_parse_boot_sector(fat_block_device_t *device, fat_boot_sector_t *boot_sector){
+fat_error_t fat_parse_boot_sector(fat_block_device_t *device, 
+                                  fat_boot_sector_t *boot_sector){
     
     // validate parameters
     if (!device || !boot_sector){
@@ -27,12 +28,14 @@ fat_error_t fat_parse_boot_sector(fat_block_device_t *device, fat_boot_sector_t 
 
     // validate basic BPB fields
     if(boot_sector->bytes_per_sector < 512 || 
-        (boot_sector->bytes_per_sector & (boot_sector->bytes_per_sector - 1))!=0){
+        (boot_sector->bytes_per_sector & 
+        (boot_sector->bytes_per_sector - 1))!=0){
             return FAT_ERR_INVALID_BOOT_SECTOR;
     }
 
-    if(boot_sector->sectors_per_cluster == 0 ||
-        (boot_sector->sectors_per_cluster & (boot_sector->sectors_per_cluster - 1))!=0){
+    if  (boot_sector->sectors_per_cluster == 0 ||
+        (boot_sector->sectors_per_cluster & 
+        (boot_sector->sectors_per_cluster - 1))!=0){
             return FAT_ERR_INVALID_BOOT_SECTOR;
         }
 
@@ -47,7 +50,8 @@ fat_error_t fat_parse_boot_sector(fat_block_device_t *device, fat_boot_sector_t 
     return FAT_OK;
 }
 
-fat_error_t fat_determine_type(const fat_boot_sector_t *boot_sector, fat_type_t *type){
+fat_error_t fat_determine_type(const fat_boot_sector_t *boot_sector, 
+                               fat_type_t *type){
 
     // validate parameters
     if(!boot_sector || !type){
@@ -86,7 +90,12 @@ fat_error_t fat_determine_type(const fat_boot_sector_t *boot_sector, fat_type_t 
     // calculate total clusters
     uint32_t total_clusters = data_sectors / boot_sector->sectors_per_cluster;
 
-    // determine FAT type: FAT12 < 4085 clusters, FAT16 4086 - 65524 clusters, FAT32 > 65524 clusters
+    /* determine FAT type: 
+    - FAT12 < 4085 clusters, 
+    - FAT16 4086 - 65524 clusters, 
+    - FAT32 > 65524 clusters
+    */
+
     if(total_clusters < 4085){
         *type = FAT_TYPE_FAT12;
     } else if (total_clusters < 65525){
@@ -98,7 +107,8 @@ fat_error_t fat_determine_type(const fat_boot_sector_t *boot_sector, fat_type_t 
     return FAT_OK;
 }
 
-fat_error_t fat_calculate_data_region(const fat_boot_sector_t *boot_sector, uint32_t *first_data_sector) {
+fat_error_t fat_calculate_data_region(const fat_boot_sector_t *boot_sector, 
+                                      uint32_t *first_data_sector) {
     
     // validate parameters
     if(!boot_sector || !first_data_sector) {

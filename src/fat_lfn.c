@@ -4,8 +4,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-fat_error_t fat_parse_lfn ( const fat_lfn_entry_t *lfn_entry, uint16_t *name_buffer, 
-                            uint8_t *chars_written){
+fat_error_t fat_parse_lfn(const fat_lfn_entry_t *lfn_entry, 
+                          uint16_t *name_buffer, 
+                          uint8_t *chars_written){
 
     // parameter validation
     if (!lfn_entry || !name_buffer || !chars_written){
@@ -76,9 +77,12 @@ uint8_t fat_calculate_lfn_checksum(const uint8_t *short_name){
     return checksum;
 }
 
-fat_error_t fat_read_lfn_sequence(fat_volume_t *volume, uint32_t dir_cluster,
-                                  uint32_t *entry_index, char *filename_buffer,
-                                  size_t buffer_size, uint8_t expected_checksum){
+fat_error_t fat_read_lfn_sequence(fat_volume_t *volume, 
+                                  uint32_t dir_cluster,
+                                  uint32_t *entry_index, 
+                                  char *filename_buffer,
+                                  size_t buffer_size, 
+                                  uint8_t expected_checksum){
     
     // parameter validation
     if (!volume || !entry_index || !filename_buffer || buffer_size == 0){
@@ -117,7 +121,9 @@ fat_error_t fat_read_lfn_sequence(fat_volume_t *volume, uint32_t dir_cluster,
             // walk cluster chain
             uint32_t target_cluster = dir_cluster;
             for(uint32_t i=0; i<cluster_index; i++){
-                fat_error_t err = fat_get_next_cluster(volume, target_cluster, &target_cluster);
+                fat_error_t err = fat_get_next_cluster(volume, 
+                                                       target_cluster, 
+                                                       &target_cluster);
                 if(err != FAT_OK || fat_is_eoc(volume, target_cluster)){
                     return FAT_ERR_CORRUPTED;
                 }
@@ -202,8 +208,10 @@ fat_error_t fat_read_lfn_sequence(fat_volume_t *volume, uint32_t dir_cluster,
     return FAT_OK;
 }
 
-fat_error_t fat_create_lfn_entries (const char *long_name, const uint8_t *short_name, 
-                                    fat_lfn_entry_t *lfn_entries, uint8_t *num_entries){
+fat_error_t fat_create_lfn_entries (const char *long_name, 
+                                    const uint8_t *short_name, 
+                                    fat_lfn_entry_t *lfn_entries, 
+                                    uint8_t *num_entries){
 
     // parameter validation
     if(!long_name || !short_name || !lfn_entries || !num_entries){

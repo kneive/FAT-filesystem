@@ -28,8 +28,10 @@ bool fat_validate_directory_name(const char *name){
     return fat_validate_filename(name);
 }
 
-fat_error_t fat_create_dot_entries(fat_volume_t *volume, uint8_t *cluster_buffer, 
-                                   cluster_t dir_cluster, cluster_t parent_cluster){
+fat_error_t fat_create_dot_entries(fat_volume_t *volume, 
+                                   uint8_t *cluster_buffer, 
+                                   cluster_t dir_cluster, 
+                                   cluster_t parent_cluster){
 
     // parameter validation
     if(!volume || !cluster_buffer){
@@ -114,7 +116,8 @@ fat_error_t fat_initialize_directory_cluster(fat_volume_t *volume,
 
     uint32_t first_sector = fat_cluster_to_sector(volume, dir_cluster);
     int result = volume->device->write_sectors(volume->device->device_data, 
-                                               first_sector, volume->sectors_per_cluster, 
+                                               first_sector, 
+                                               volume->sectors_per_cluster, 
                                                cluster_buffer);
     free(cluster_buffer);
 
@@ -125,8 +128,10 @@ fat_error_t fat_initialize_directory_cluster(fat_volume_t *volume,
     return FAT_OK;
 }
 
-fat_error_t fat_create_directory_entry(fat_volume_t *volume, cluster_t parent_cluster, 
-                                       const char *dir_name, cluster_t dir_cluster){
+fat_error_t fat_create_directory_entry(fat_volume_t *volume, 
+                                       cluster_t parent_cluster, 
+                                       const char *dir_name, 
+                                       cluster_t dir_cluster){
 
     // parameter validation
     if(!volume || !dir_name || dir_cluster < 2){
@@ -153,7 +158,8 @@ fat_error_t fat_create_directory_entry(fat_volume_t *volume, cluster_t parent_cl
                                         FAT_ATTR_DIRECTORY);
 }
 
-fat_error_t fat_check_directory_space(fat_volume_t *volume, cluster_t parent_cluster, 
+fat_error_t fat_check_directory_space(fat_volume_t *volume, 
+                                      cluster_t parent_cluster, 
                                       uint32_t entries_needed){
 
     // parameter validation
@@ -162,7 +168,10 @@ fat_error_t fat_check_directory_space(fat_volume_t *volume, cluster_t parent_clu
     }
 
     uint32_t entry_index;
-    return fat_find_free_entry(volume, parent_cluster, entries_needed, &entry_index);
+    return fat_find_free_entry(volume, 
+                               parent_cluster, 
+                               entries_needed, 
+                               &entry_index);
 }
 
 fat_error_t fat_mkdir(fat_volume_t *volume, const char *path){
@@ -204,7 +213,11 @@ fat_error_t fat_mkdir(fat_volume_t *volume, const char *path){
     }
 
     fat_dir_entry_t existing_entry;
-    fat_error_t err = fat_resolve_path(volume, path, &existing_entry, NULL, NULL);
+    fat_error_t err = fat_resolve_path(volume, 
+                                       path, 
+                                       &existing_entry, 
+                                       NULL, 
+                                       NULL);
     if(err == FAT_OK){
         free(path_copy);
         return FAT_ERR_ALREADY_EXISTS;
@@ -216,7 +229,11 @@ fat_error_t fat_mkdir(fat_volume_t *volume, const char *path){
     // resolve parent directory
     fat_dir_entry_t parent_entry;
     cluster_t parent_cluster;
-    err = fat_resolve_path(volume, parent_path, &parent_entry, &parent_cluster, NULL);
+    err = fat_resolve_path(volume, 
+                           parent_path, 
+                           &parent_entry, 
+                           &parent_cluster, 
+                           NULL);
     if(err != FAT_OK){
         // parent directory does not exist
         free(path_copy);
@@ -270,14 +287,19 @@ fat_error_t fat_mkdir(fat_volume_t *volume, const char *path){
         return err;
     }
 
-    err = fat_initialize_directory_cluster(volume, dir_cluster, parent_dir_cluster);
+    err = fat_initialize_directory_cluster(volume, 
+                                           dir_cluster, 
+                                           parent_dir_cluster);
     if(err != FAT_OK){
         fat_write_entry(volume, dir_cluster, FAT_FREE);
         free(path_copy);
         return err;
     }
 
-    err = fat_create_directory_entry(volume, parent_dir_cluster, dir_name, dir_cluster);
+    err = fat_create_directory_entry(volume, 
+                                     parent_dir_cluster, 
+                                     dir_name, 
+                                     dir_cluster);
     if(err != FAT_OK){
         fat_write_entry(volume, dir_cluster, FAT_FREE);
         free(path_copy);

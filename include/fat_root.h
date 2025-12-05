@@ -8,10 +8,12 @@
 
 cluster_t fat_get_root_dir_cluster(fat_volume_t *volume);
 
-fat_error_t fat_read_root_dir_fat12(fat_volume_t *volume, fat_dir_entry_t **entries, 
+fat_error_t fat_read_root_dir_fat12(fat_volume_t *volume, 
+                                    fat_dir_entry_t **entries, 
                                     uint32_t *count);
 
-fat_error_t fat_read_root_dir_fat32(fat_volume_t *volume, fat_dir_entry_t **entries,
+fat_error_t fat_read_root_dir_fat32(fat_volume_t *volume, 
+                                    fat_dir_entry_t **entries,
                                     uint32_t *count);
 
 uint32_t fat_cluster_to_sector(fat_volume_t *volume, cluster_t cluster);

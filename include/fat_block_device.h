@@ -6,8 +6,10 @@
 // block device interface: abstraction from underlying storage device
 
 typedef struct {
-    int(*read_sectors)(void *device, uint32_t sector, uint32_t count, void *buffer);
-    int(*write_sectors)(void *device, uint32_t sector, uint32_t count, const void *buffer);
+    int(*read_sectors)(void *device, uint32_t sector, uint32_t count, 
+                       void *buffer);
+    int(*write_sectors)(void *device, uint32_t sector, uint32_t count, 
+                        const void *buffer);
     int (*get_sector_count)(void *device, uint32_t *sector_count);
     int (*get_sector_size)(void *device, uint32_t *sector_size);
     void *device_data;

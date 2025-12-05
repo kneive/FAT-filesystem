@@ -103,6 +103,7 @@ fat_error_t fat_load_directory_cluster(fat_dir_t *dir, cluster_t cluster){
         uint32_t entries_per_sector = dir->volume->bytes_per_sector / 32;
         uint32_t root_start = dir->volume->reserved_sector_count +
                               (dir->volume->num_fats * dir->volume->fat_size_sectors);
+
         uint32_t sector_index = dir->current_entry_index / entries_per_sector;
         sector = root_start + sector_index;
         sectors_to_read = 1;
@@ -249,7 +250,8 @@ fat_error_t fat_readdir(fat_dir_t *dir, fat_dir_entry_info_t *info){
         }
 
         // get current directory entry
-        fat_dir_entry_t *entry = (fat_dir_entry_t*)&dir->cluster_buffer[dir->cluster_offset * 32];
+        fat_dir_entry_t *entry = (fat_dir_entry_t*)&dir->
+                                  cluster_buffer[dir->cluster_offset * 32];
 
         if(entry->name[0] == FAT_DIR_ENTRY_FREE){
             return FAT_ERR_EOF;
@@ -281,9 +283,13 @@ fat_error_t fat_readdir(fat_dir_t *dir, fat_dir_entry_info_t *info){
             uint8_t checksum = fat_calculate_lfn_checksum(entry->name);
             uint32_t lfn_entry_index = dir->current_entry_index;
 
-            fat_error_t lfn_err = fat_read_lfn_sequence(dir->volume, dir->dir_cluster,
-                                                        &lfn_entry_index, long_filename,
-                                                        sizeof(long_filename), checksum);
+            fat_error_t lfn_err = fat_read_lfn_sequence(dir->volume, 
+                                                        dir->dir_cluster,
+                                                        &lfn_entry_index, 
+                                                        long_filename,
+                                                        sizeof(long_filename), 
+                                                        checksum);
+
             if(lfn_err == FAT_OK && strlen(long_filename) > 0){
                 has_lfn = true;
             }

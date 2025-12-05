@@ -5,7 +5,7 @@
 #include "fat_types.h"
 #include "fat_block_device.h"
 
-// boot sector structure: attributes are packed b/c they must match on disk layout
+// boot sector structure: attributes must match on disk layout (->packed)
 typedef struct __attribute__((packed)) {
     
     // common BPB fields
@@ -60,8 +60,13 @@ typedef struct __attribute__((packed)) {
     // Boot code: FAT32 - bytes 90-509 FAT16 - bytes 62-509
 } fat_boot_sector_t;
 
-fat_error_t fat_parse_boot_sector(fat_block_device_t *device, fat_boot_sector_t *boot_sector);
-fat_error_t fat_determine_type(const fat_boot_sector_t *boot_sector, fat_type_t *type);
-fat_error_t fat_calculate_data_region(const fat_boot_sector_t *boot_sector, uint32_t *first_data_sector);
+fat_error_t fat_parse_boot_sector(fat_block_device_t *device, 
+                                  fat_boot_sector_t *boot_sector);
+
+fat_error_t fat_determine_type(const fat_boot_sector_t *boot_sector, 
+                               fat_type_t *type);
+
+fat_error_t fat_calculate_data_region(const fat_boot_sector_t *boot_sector, 
+                                      uint32_t *first_data_sector);
 
 #endif

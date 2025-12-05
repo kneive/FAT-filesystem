@@ -77,7 +77,7 @@ typedef enum {
     FAT_ERR_CORRUPTED,              // filesystem corruption detected
 
     // access control errors
-    FAT_ERR_READ_ONLY,              // write on read-only file / volume attempted
+    FAT_ERR_READ_ONLY,              // write on rd-only file / volume attempted
 
     // file operation errors
     FAT_ERR_EOF                     // read beyond end of file attempted
@@ -86,10 +86,10 @@ typedef enum {
 // boot sector signature: magic number at bytes 510-511 validate boot sector
 #define FAT_BOOT_SIGNATURE 0xAA55
 
-// special values for directory entries: special first byte values for directory entries
+// special values for directory entries: special 1st byte values for dir entries
 #define FAT_DIR_ENTRY_FREE 0x00     // entry is never used (end of directory)
 #define FAT_DIR_ENTRY_DELETED 0xE5  // entry was deleted (reusable)
-#define FAT_DIR_ENTRY_KANJI 0x05    // first byte is actually 0xE5 (kanji character)
+#define FAT_DIR_ENTRY_KANJI 0x05    // first byte is actually 0xE5 (kanji)
 
 // seek modes: file seeking modes
 #define FAT_SEEK_SET 0 // seek from beginning of a file

@@ -85,7 +85,8 @@ fat_error_t fat_write_dir_entry(fat_volume_t *volume, uint32_t sector,
     return FAT_OK;
 }
 
-cluster_t fat_get_entry_cluster(fat_volume_t *volume, const fat_dir_entry_t *entry){
+cluster_t fat_get_entry_cluster(fat_volume_t *volume, 
+                                const fat_dir_entry_t *entry){
 
     // parameter validation
     if(!volume || !entry){
@@ -104,7 +105,9 @@ cluster_t fat_get_entry_cluster(fat_volume_t *volume, const fat_dir_entry_t *ent
     }
 }
 
-void fat_set_entry_cluster(fat_volume_t *volume, fat_dir_entry_t *entry, cluster_t cluster){
+void fat_set_entry_cluster(fat_volume_t *volume, 
+                           fat_dir_entry_t *entry, 
+                           cluster_t cluster){
 
     // parameter validation
     if(!volume || !entry){

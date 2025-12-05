@@ -29,7 +29,8 @@ fat_error_t fat_mount(fat_block_device_t *device, fat_volume_t *volume){
     // cache frequently-used parameters
     volume->bytes_per_sector = volume->boot_sector.bytes_per_sector;
     volume->sectors_per_cluster = volume->boot_sector.sectors_per_cluster;
-    volume->bytes_per_cluster = volume->bytes_per_sector * volume->sectors_per_cluster;
+    volume->bytes_per_cluster = volume->bytes_per_sector * 
+                                    volume->sectors_per_cluster;
     volume->reserved_sector_count = volume->boot_sector.reserved_sector_count;
     volume->num_fats = volume->boot_sector.num_fats;
     volume->root_entry_count = volume->boot_sector.root_entry_count;
@@ -64,7 +65,7 @@ fat_error_t fat_mount(fat_block_device_t *device, fat_volume_t *volume){
     volume->fat_begin_sector = volume->reserved_sector_count;
     volume->data_begin_sector = volume->reserved_sector_count +
                                 (volume->num_fats * volume->fat_size_sectors) +
-                                volume->root_dir_sectors;
+                                    volume->root_dir_sectors;
     
     uint32_t data_sectors = volume->total_sectors - volume->data_begin_sector;
     volume->total_clusters = data_sectors / volume->sectors_per_cluster;
@@ -108,7 +109,8 @@ fat_error_t fat_flush(fat_volume_t *volume){
     for(uint8_t i = 0; i < volume->num_fats; i++){
         
         // calculate start sector for current FAT copy
-        uint32_t fat_sector = volume->fat_begin_sector + (i * volume->fat_size_sectors);
+        uint32_t fat_sector = volume->fat_begin_sector + 
+                                (i * volume->fat_size_sectors);
         
         // write FAT cache to current copy
         int result = volume->device->write_sectors(volume->device->device_data,

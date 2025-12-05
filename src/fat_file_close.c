@@ -16,7 +16,7 @@ bool fat_validate_file_handle(fat_file_t *file){
     }
 
     // check if position is more than a cluster beyond file_size
-    if(file->position > file->dir_entry.file_size + file->volume->bytes_per_cluster){
+    if(file->position > file->dir_entry.file_size+file->volume->bytes_per_cluster){
         return false;
     }
 
@@ -28,7 +28,8 @@ bool fat_validate_file_handle(fat_file_t *file){
     return true;
 }
 
-fat_error_t fat_calculate_directory_entry_location(fat_file_t *file, uint32_t *sector, 
+fat_error_t fat_calculate_directory_entry_location(fat_file_t *file, 
+                                                   uint32_t *sector, 
                                                    uint32_t *offset){
  
     // parameter validation
@@ -42,8 +43,9 @@ fat_error_t fat_calculate_directory_entry_location(fat_file_t *file, uint32_t *s
         // FAT12/16 root directory
         uint32_t entries_per_sector = file->volume->bytes_per_sector / 32;
         uint32_t root_start_sector = file->volume->reserved_sector_count +
-                                    (file->volume->num_fats * file->volume->fat_size_sectors);
-        *sector = root_start_sector + (file->dir_entry_offset / entries_per_sector);
+                                        (file->volume->num_fats * 
+                                         file->volume->fat_size_sectors);
+        *sector = root_start_sector+(file->dir_entry_offset / entries_per_sector);
         *offset = (file->dir_entry_offset % entries_per_sector) * 32;
     } else {
         // FAT32 or subdirectory
@@ -54,14 +56,17 @@ fat_error_t fat_calculate_directory_entry_location(fat_file_t *file, uint32_t *s
         // walk cluster chain
         cluster_t target_cluster = file->dir_cluster;
         for(uint32_t i=0 ; i<cluster_index; i++){
-            fat_error_t err = fat_get_next_cluster(file->volume, target_cluster, &target_cluster);
+            fat_error_t err = fat_get_next_cluster(file->volume, 
+                                                   target_cluster, 
+                                                   &target_cluster);
             if(err != FAT_OK || fat_is_eoc(file->volume, target_cluster)){
                 return FAT_ERR_CORRUPTED;
             }
         }
 
         // convert cluster to sector
-        uint32_t cluster_first_sector = fat_cluster_to_sector(file->volume, target_cluster);
+        uint32_t cluster_first_sector = fat_cluster_to_sector(file->volume, 
+                                                              target_cluster);
         uint32_t entries_per_sector = file->volume->bytes_per_sector / 32;
 
         *sector = cluster_first_sector + (entry_in_cluster / entries_per_sector);
@@ -70,7 +75,8 @@ fat_error_t fat_calculate_directory_entry_location(fat_file_t *file, uint32_t *s
     return FAT_OK;
 }
 
-fat_error_t fat_update_directory_entry(fat_file_t *file, const fat_dir_entry_t *entry){
+fat_error_t fat_update_directory_entry(fat_file_t *file, 
+                                       const fat_dir_entry_t *entry){
 
     // parameter validation
     if(!file || !entry){
@@ -78,7 +84,9 @@ fat_error_t fat_update_directory_entry(fat_file_t *file, const fat_dir_entry_t *
     }
 
     uint32_t sector, offset;
-    fat_error_t err = fat_calculate_directory_entry_location(file, &sector, &offset);
+    fat_error_t err = fat_calculate_directory_entry_location(file, 
+                                                             &sector, 
+                                                             &offset);
     if(err != FAT_OK){
         return err;
     }

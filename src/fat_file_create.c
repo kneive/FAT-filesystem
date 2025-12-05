@@ -109,8 +109,10 @@ uint32_t fat_calculate_entries_needed(const char *filename){
     return lfn_entries + 1;
 }
 
-fat_error_t fat_generate_short_name(const char *long_name, uint8_t *short_name, 
-                                    fat_volume_t *volume, cluster_t parent_cluster){
+fat_error_t fat_generate_short_name(const char *long_name, 
+                                    uint8_t *short_name, 
+                                    fat_volume_t *volume, 
+                                    cluster_t parent_cluster){
 
     // parameter validation
     if(!long_name || !short_name) {
@@ -211,8 +213,11 @@ fat_error_t fat_generate_short_name(const char *long_name, uint8_t *short_name,
         fat_dir_entry_t existing_entry;
         uint32_t entry_index;
 
-        fat_error_t err = fat_find_entry(volume, parent_cluster, (char *)short_name, 
-                                         &existing_entry, &entry_index);
+        fat_error_t err = fat_find_entry(volume, 
+                                         parent_cluster, 
+                                         (char *)short_name, 
+                                         &existing_entry, 
+                                         &entry_index);
         if(err == FAT_ERR_NOT_FOUND){
             // name is unique
             return FAT_OK;
@@ -271,9 +276,12 @@ fat_error_t fat_initialize_file_cluster(fat_volume_t *volume, cluster_t cluster)
 
 }
 
-fat_error_t fat_create_directory_entries(fat_volume_t *volume, cluster_t parent_cluster,
-                                         uint32_t entry_index, const char *filename,
-                                         const uint8_t *short_name, cluster_t file_cluster,
+fat_error_t fat_create_directory_entries(fat_volume_t *volume, 
+                                         cluster_t parent_cluster,
+                                         uint32_t entry_index, 
+                                         const char *filename,
+                                         const uint8_t *short_name, 
+                                         cluster_t file_cluster,
                                          uint8_t attributes){
 
     // paramater validation
@@ -287,7 +295,7 @@ fat_error_t fat_create_directory_entries(fat_volume_t *volume, cluster_t parent_
     // create LFN if necessary
     if(entries_needed > 1){
         uint32_t lfn_entries = entries_needed - 1;
-        fat_lfn_entry_t *lfn_array = malloc(lfn_entries * sizeof(fat_lfn_entry_t));
+        fat_lfn_entry_t *lfn_array = malloc(lfn_entries*sizeof(fat_lfn_entry_t));
         if(!lfn_array){
             return FAT_ERR_NO_MEMORY;
         }
@@ -308,7 +316,7 @@ fat_error_t fat_create_directory_entries(fat_volume_t *volume, cluster_t parent_
                 //FAET12/16 root
                 uint32_t entries_per_sector = volume->bytes_per_sector / 32;
                 uint32_t root_start = volume->reserved_sector_count + 
-                                      (volume->num_fats * volume->fat_size_sectors);
+                                      (volume->num_fats*volume->fat_size_sectors);
                 sector = root_start + (current_index / entries_per_sector);
                 offset = (current_index & entries_per_sector) * 32;
             } else {
@@ -319,7 +327,9 @@ fat_error_t fat_create_directory_entries(fat_volume_t *volume, cluster_t parent_
                 // walk cluster chain
                 cluster_t target_cluster = parent_cluster;
                 for(uint32_t j=0; j<cluster_index; j++){
-                    err = fat_get_next_cluster(volume, target_cluster, &target_cluster);
+                    err = fat_get_next_cluster(volume, 
+                                               target_cluster, 
+                                               &target_cluster);
                     if(err != FAT_OK){
                         free(lfn_array);
                         return err;
@@ -398,7 +408,9 @@ fat_error_t fat_create_directory_entries(fat_volume_t *volume, cluster_t parent_
     return fat_write_dir_entry(volume, sector, offset, &dir_entry);
 }
 
-fat_error_t fat_create(fat_volume_t *volume, const char *path, uint8_t attributes, 
+fat_error_t fat_create(fat_volume_t *volume, 
+                       const char *path, 
+                       uint8_t attributes, 
                        fat_file_t **file){
 
     // parameter validation
@@ -509,8 +521,13 @@ fat_error_t fat_create(fat_volume_t *volume, const char *path, uint8_t attribute
         return err;
     }
 
-    err = fat_create_directory_entries(volume, parent_dir_cluster, entry_index, 
-                                       filename, short_name, file_cluster, attributes);
+    err = fat_create_directory_entries(volume, 
+                                       parent_dir_cluster, 
+                                       entry_index, 
+                                       filename, 
+                                       short_name, 
+                                       file_cluster, 
+                                       attributes);
     if(err != FAT_OK){
         fat_write_entry(volume, file_cluster, FAT_FREE);
         free(path_copy);

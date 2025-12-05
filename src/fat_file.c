@@ -23,7 +23,9 @@ bool fat_validate_open_flags(int flags, const fat_dir_entry_t *entry){
             return false;
         }
 
-        if((entry->attr & FAT_ATTR_READ_ONLY) && (flags & (FAT_O_WRONLY | FAT_O_RDWR))){
+        if((entry->attr & FAT_ATTR_READ_ONLY) && 
+           (flags & (FAT_O_WRONLY | FAT_O_RDWR)))
+        {
             return false;
         }
 
@@ -54,9 +56,12 @@ void fat_update_file_timestamps(fat_dir_entry_t *entry){
     entry->write_date = fat_date;
 }
 
-fat_error_t fat_init_file_handle(fat_file_t *file, fat_volume_t *volume,
-                                 const fat_dir_entry_t *dir_entry, cluster_t dir_cluster,
-                                 uint32_t dir_entry_offset, int flags){
+fat_error_t fat_init_file_handle(fat_file_t *file, 
+                                 fat_volume_t *volume,
+                                 const fat_dir_entry_t *dir_entry, 
+                                 cluster_t dir_cluster,
+                                 uint32_t dir_entry_offset, 
+                                 int flags){
     
     // parameter validation
     if(!file || !volume || !dir_entry){
@@ -87,7 +92,10 @@ fat_error_t fat_init_file_handle(fat_file_t *file, fat_volume_t *volume,
     return FAT_OK;
 }
 
-fat_error_t fat_open(fat_volume_t *volume, const char *path, int flags, fat_file_t **file){
+fat_error_t fat_open(fat_volume_t *volume, 
+                     const char *path, 
+                     int flags, 
+                     fat_file_t **file){
 
     // parameter validation
     if(!volume || !path || !file){
@@ -105,7 +113,10 @@ fat_error_t fat_open(fat_volume_t *volume, const char *path, int flags, fat_file
     cluster_t parent_cluster;
     uint32_t entry_index;
 
-    fat_error_t err = fat_resolve_path(volume, path, &dir_entry, &parent_cluster, 
+    fat_error_t err = fat_resolve_path(volume, 
+                                       path, 
+                                       &dir_entry, 
+                                       &parent_cluster, 
                                        &entry_index);
     if(err == FAT_ERR_NOT_FOUND){
         
@@ -135,8 +146,12 @@ fat_error_t fat_open(fat_volume_t *volume, const char *path, int flags, fat_file
         return FAT_ERR_NO_MEMORY;
     }
 
-    err = fat_init_file_handle(new_file, volume, &dir_entry, parent_cluster,
-                               entry_index, flags);
+    err = fat_init_file_handle(new_file, 
+                               volume, 
+                               &dir_entry, 
+                               parent_cluster,
+                               entry_index, 
+                               flags);
 
     if(err != FAT_OK){
         free(new_file);
@@ -165,19 +180,21 @@ fat_error_t fat_close(fat_file_t *file){
             // FAT12/16 root
             uint32_t entries_per_sector = file->volume->bytes_per_sector / 32;
             uint32_t root_start = file->volume->reserved_sector_count + 
-                                (file->volume->num_fats * file->volume->fat_size_sectors);
+                                (file->volume->num_fats * 
+                                    file->volume->fat_size_sectors);
             sector = root_start + (file->dir_entry_offset / entries_per_sector);
             offset = (file->dir_entry_offset % entries_per_sector) * 32;
         } else {
 
             // FAT32 or subdirectory
             uint32_t entries_per_cluster = file->volume->bytes_per_cluster / 32;
-            uint32_t cluster_index = file->dir_entry_offset / entries_per_cluster;
+            uint32_t cluster_index=file->dir_entry_offset / entries_per_cluster;
 
             // walk cluster chain
             cluster_t target_cluster = file->dir_cluster;
             for(uint32_t i = 0; i<cluster_index; i++){
-                fat_error_t err = fat_get_next_cluster (file->volume, target_cluster, 
+                fat_error_t err = fat_get_next_cluster (file->volume, 
+                                                        target_cluster, 
                                                         &target_cluster);
                 if(err != FAT_OK){
                     result = err;

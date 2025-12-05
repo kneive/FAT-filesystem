@@ -160,8 +160,8 @@ fat_error_t fat_calculate_format_parameters(uint32_t total_sectors,
         }
 
         uint32_t fat_size_bytes = fat_entries * bytes_per_fat_entry;
-        uint32_t new_fat_size_sectors = (fat_size_bytes + bytes_per_sector - 1) /
-                                        bytes_per_sector;
+        uint32_t new_fat_size_sectors = (fat_size_bytes + bytes_per_sector-1) /
+                                            bytes_per_sector;
         
         if(new_fat_size_sectors == fat_size_sectors){
             break;
@@ -306,7 +306,9 @@ fat_error_t fat_write_boot_sector(fat_block_device_t *device,
     if(result == 0 && params->fat_type == FAT_TYPE_FAT32 
                    && params->backup_boot_sector > 0 ){
         result = device->write_sectors(device->device_data, 
-                                       params->backup_boot_sector, 1, boot_sector);
+                                       params->backup_boot_sector, 
+                                       1, 
+                                       boot_sector);
     }
 
     free(boot_sector);
@@ -352,9 +354,14 @@ fat_error_t fat_initialize_fat_tables(fat_block_device_t *device,
     uint32_t fat_start_sector = params->reserved_sectors;
      // write first sector of each FAT copy
      for(uint32_t fat_num = 0; fat_num<params->num_fats; fat_num++){
-        uint32_t fat_sector = fat_start_sector + (fat_num * params->fat_size_sectors);
+        
+        uint32_t fat_sector = fat_start_sector + 
+                                (fat_num * params->fat_size_sectors);
+        
         int result = device->write_sectors(device->device_data, 
-                                           fat_sector, 1, fat_buffer);
+                                           fat_sector, 
+                                           1, 
+                                           fat_buffer);
         if(result!=0){
             free(fat_buffer);
             return FAT_ERR_DEVICE_ERROR;
@@ -364,10 +371,16 @@ fat_error_t fat_initialize_fat_tables(fat_block_device_t *device,
      memset(fat_buffer, 0, params->bytes_per_sector);
 
      for(uint32_t fat_num=0; fat_num<params->num_fats; fat_num++){
-        uint32_t fat_sector = fat_start_sector + (fat_num * params->fat_size_sectors);
+        
+        uint32_t fat_sector = fat_start_sector + 
+                                (fat_num * params->fat_size_sectors);
+        
         for(uint32_t sector=1; sector<params->fat_size_sectors; sector++){
+            
             int result = device->write_sectors(device->device_data, 
-                                               fat_sector + sector, 1, fat_buffer);
+                                               fat_sector + sector, 
+                                               1, 
+                                               fat_buffer);
             if(result != 0){
                 free(fat_buffer);
                 return FAT_ERR_DEVICE_ERROR;
@@ -399,7 +412,9 @@ fat_error_t fat_create_fs_info_sector(fat_block_device_t *device,
     *(uint32_t*)&fs_info[508] = 0xAA550000;
 
     int result = device->write_sectors(device->device_data, 
-                                       params->fs_info_sector, 1, fs_info);
+                                       params->fs_info_sector, 
+                                       1, 
+                                       fs_info);
     
     free(fs_info);
 
@@ -460,10 +475,13 @@ fat_error_t fat_initialize_root_directory(fat_block_device_t *device,
         // FAT32 init root directory cluster
         uint32_t root_sector = params->reserved_sectors +
                               (params->num_fats * params->fat_size_sectors) +
-                              ((params->root_cluster - 2) * params->sectors_per_cluster);
+                              ((params->root_cluster-2) * params->sectors_per_cluster);
+        
         for(uint32_t i=0; i<params->sectors_per_cluster; i++){
+        
             int result = device->write_sectors(device->device_data, 
                                                root_sector + i, 1, dir_buffer);
+        
             if(result!=0){
                 free(dir_buffer);
                 return FAT_ERR_DEVICE_ERROR;
@@ -477,12 +495,17 @@ fat_error_t fat_initialize_root_directory(fat_block_device_t *device,
         // FAT12/16 init root
         uint32_t root_start_sector = params->reserved_sectors +
                                     (params->num_fats * params->fat_size_sectors);
+
         uint32_t root_sectors = ((params->root_entry_count * 32) +
                                  (params->bytes_per_sector - 1)) / 
                                   params->bytes_per_sector;
         for(uint32_t i=0; i<root_sectors; i++){
+
             int result = device->write_sectors(device->device_data, 
-                                               root_start_sector + i, 1, dir_buffer);
+                                               root_start_sector + i, 
+                                               1, 
+                                               dir_buffer);
+
             if(result!=0){
                 free(dir_buffer);
                 return FAT_ERR_DEVICE_ERROR;
@@ -498,8 +521,10 @@ fat_error_t fat_initialize_root_directory(fat_block_device_t *device,
     return FAT_OK;
 }
 
-fat_error_t fat_format(fat_block_device_t *device, fat_type_t fat_type, 
-                       uint32_t cluster_size, const char *volume_label){
+fat_error_t fat_format(fat_block_device_t *device, 
+                       fat_type_t fat_type, 
+                       uint32_t cluster_size, 
+                       const char *volume_label){
 
     // parameter validation
     if(!device){

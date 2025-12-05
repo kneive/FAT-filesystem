@@ -16,10 +16,11 @@ uint32_t fat_calculate_clusters_needed(fat_volume_t *volume, uint32_t file_size)
     }
 
     // round up to cluster boundary
-    return (file_size + volume->bytes_per_cluster - 1) / volume->bytes_per_cluster;
+    return (file_size + volume->bytes_per_cluster-1) / volume->bytes_per_cluster;
 }
 
-fat_error_t fat_find_last_cluster(fat_volume_t *volume, cluster_t start_cluster,
+fat_error_t fat_find_last_cluster(fat_volume_t *volume, 
+                                  cluster_t start_cluster,
                                   cluster_t *last_cluster){
 
     // parameter validation
@@ -51,7 +52,8 @@ fat_error_t fat_find_last_cluster(fat_volume_t *volume, cluster_t start_cluster,
     }
 }
 
-fat_error_t fat_allocate_and_link_cluster(fat_volume_t *volume, cluster_t prev_cluster, 
+fat_error_t fat_allocate_and_link_cluster(fat_volume_t *volume, 
+                                          cluster_t prev_cluster, 
                                           cluster_t *new_cluster){
 
     // parameter validation
@@ -108,7 +110,8 @@ fat_error_t fat_extend_file(fat_file_t *file, uint32_t new_size){
         return FAT_ERR_INVALID_PARAM;
     }
 
-    uint32_t clusters_needed = fat_calculate_clusters_needed(file->volume, new_size);
+    uint32_t clusters_needed = fat_calculate_clusters_needed(file->volume, 
+                                                             new_size);
     uint32_t current_clusters = fat_calculate_clusters_needed(file->volume, 
                                                               file->dir_entry.file_size);
     if(clusters_needed <= current_clusters){
@@ -119,7 +122,8 @@ fat_error_t fat_extend_file(fat_file_t *file, uint32_t new_size){
     uint32_t clusters_to_add = clusters_needed - current_clusters;
 
     cluster_t last_cluster;
-    cluster_t start_cluster = fat_get_entry_cluster(file->volume, &file->dir_entry);
+    cluster_t start_cluster = fat_get_entry_cluster(file->volume, 
+                                                    &file->dir_entry);
 
     if(start_cluster == 0){
         // no clusters allocated yet 
@@ -129,8 +133,8 @@ fat_error_t fat_extend_file(fat_file_t *file, uint32_t new_size){
         }
 
         // write EOC to first cluster
-        uint32_t eoc_marker = (file->volume->type == FAT_TYPE_FAT12) ? FAT12_EOC :
-                              (file->volume->type == FAT_TYPE_FAT16) ? FAT16_EOC : 
+        uint32_t eoc_marker = (file->volume->type==FAT_TYPE_FAT12) ? FAT12_EOC :
+                              (file->volume->type==FAT_TYPE_FAT16) ? FAT16_EOC : 
                               FAT32_EOC;
         fat_write_entry(file->volume, start_cluster, eoc_marker);
 
@@ -152,7 +156,8 @@ fat_error_t fat_extend_file(fat_file_t *file, uint32_t new_size){
     cluster_t current_last = last_cluster;
     for(uint32_t i=0; i<clusters_to_add; i++){
         cluster_t new_cluster;
-        fat_error_t err = fat_allocate_and_link_cluster(file->volume, current_last, 
+        fat_error_t err = fat_allocate_and_link_cluster(file->volume, 
+                                                        current_last, 
                                                         &new_cluster);
         if(err != FAT_OK){
             return err;
@@ -163,8 +168,11 @@ fat_error_t fat_extend_file(fat_file_t *file, uint32_t new_size){
     return FAT_OK;
 }
 
-fat_error_t fat_write_cluster_data(fat_volume_t *volume, cluster_t cluster, 
-                                   uint32_t offset, const void *buffer, size_t length){
+fat_error_t fat_write_cluster_data(fat_volume_t *volume, 
+                                   cluster_t cluster, 
+                                   uint32_t offset, 
+                                   const void *buffer, 
+                                   size_t length){
 
     // parameter validation
     if(!volume || !buffer || length==0){
@@ -187,28 +195,33 @@ fat_error_t fat_write_cluster_data(fat_volume_t *volume, cluster_t cluster,
     uint32_t first_sector = fat_cluster_to_sector(volume, cluster);
 
     uint32_t start_sector = first_sector + (offset / volume->bytes_per_sector);
-    uint32_t end_sector = first_sector + ((offset + length - 1) / volume->bytes_per_sector);
+    uint32_t end_sector = first_sector + 
+                            ((offset + length - 1) / volume->bytes_per_sector);
     uint32_t sectors_to_write = end_sector - start_sector + 1;
 
     // check if we are writing complete sectors
     uint32_t sector_start_offset = offset * volume->bytes_per_sector;
     bool complete_sectors = (sector_start_offset == 0) && 
-                            (length == sectors_to_write * volume->bytes_per_sector);
+                            (length==sectors_to_write*volume->bytes_per_sector);
     if(complete_sectors){
         // direct write
         int result = volume->device->write_sectors(volume->device->device_data, 
-                                                   start_sector, sectors_to_write, buffer);
+                                                   start_sector, 
+                                                   sectors_to_write, 
+                                                   buffer);
         return (result == 0) ? FAT_OK : FAT_ERR_DEVICE_ERROR;
     } else {
         // partial sector write
-        uint8_t *sector_buffer = malloc(sectors_to_write * volume->bytes_per_sector);
+        uint8_t *sector_buffer = malloc(sectors_to_write * 
+                                            volume->bytes_per_sector);
         if(!sector_buffer){
             return FAT_ERR_NO_MEMORY;
         }
 
         // read current sector data
         int result = volume->device->read_sectors(volume->device->device_data, 
-                                                  start_sector, sectors_to_write, 
+                                                  start_sector, 
+                                                  sectors_to_write, 
                                                   sector_buffer);
         if(result != 0){
             free(sector_buffer);
@@ -220,7 +233,8 @@ fat_error_t fat_write_cluster_data(fat_volume_t *volume, cluster_t cluster,
 
         // write modified buffer to drive
         result = volume->device->write_sectors(volume->device->device_data,
-                                               start_sector, sectors_to_write,
+                                               start_sector, 
+                                               sectors_to_write,
                                                sector_buffer);
         free(sector_buffer);
         return(result == 0) ? FAT_OK : FAT_ERR_DEVICE_ERROR;
@@ -266,11 +280,15 @@ int fat_write(fat_file_t *file, const void *buffer, size_t size){
     // write data
     while(remaining > 0){
         // calculate how much space is left in current cluster
-        uint32_t cluster_remaining = file->volume->bytes_per_cluster - file->cluster_offset;
-        size_t chunk_size = (remaining < cluster_remaining) ? remaining : cluster_remaining;
+        uint32_t cluster_remaining = file->volume->bytes_per_cluster - 
+                                        file->cluster_offset;
+        size_t chunk_size = (remaining < cluster_remaining) ? remaining : 
+                                                              cluster_remaining;
 
-        err = fat_write_cluster_data(file->volume, file->current_cluster, 
-                                     file->cluster_offset, &input_buffer[bytes_written], 
+        err = fat_write_cluster_data(file->volume, 
+                                     file->current_cluster, 
+                                     file->cluster_offset, 
+                                     &input_buffer[bytes_written], 
                                      chunk_size);
         if(err != FAT_OK){
             // return bytes written / error
@@ -282,10 +300,14 @@ int fat_write(fat_file_t *file, const void *buffer, size_t size){
         remaining -= chunk_size;
         file->cluster_offset += chunk_size;
 
-        if(file->cluster_offset >= file->volume->bytes_per_cluster && remaining > 0){
+        if(file->cluster_offset >= file->volume->bytes_per_cluster && 
+           remaining > 0)
+        {
             // move to next cluster
             cluster_t next_cluster;
-            err = fat_get_next_cluster(file->volume, file->current_cluster, &next_cluster);
+            err = fat_get_next_cluster(file->volume, 
+                                       file->current_cluster, 
+                                       &next_cluster);
             if(err != FAT_OK || fat_is_eoc(file->volume, next_cluster)){
                 // should never happen if extension worked properly
                 break;

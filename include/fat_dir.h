@@ -86,7 +86,8 @@ typedef struct __attribute__((packed)){
     // type - always 0 (reserved)
     uint8_t type;
 
-    // checksum - checksum of corresponding short name, validates LFN belongs to shor entry
+    // checksum - checksum of corresponding short name, 
+    //            validates LFN belongs to shor entry
     uint8_t checksum;
 
     // name part 2 - next 6 unicode characters
@@ -99,10 +100,21 @@ typedef struct __attribute__((packed)){
     uint8_t name3[4];
 } fat_lfn_entry_t;
 
-fat_error_t fat_read_dir_entry (fat_volume_t *volume, uint32_t sector, 
-                                uint32_t offset, fat_dir_entry_t *entry);
-fat_error_t fat_write_dir_entry(fat_volume_t *volume, uint32_t sector,
-                                uint32_t offset, const fat_dir_entry_t *entry);
-cluster_t fat_get_entry_cluster(fat_volume_t *volume, const fat_dir_entry_t *entry);
-void fat_set_entry_cluster(fat_volume_t *volume, fat_dir_entry_t *entry, cluster_t cluster);
+fat_error_t fat_read_dir_entry (fat_volume_t *volume, 
+                                uint32_t sector, 
+                                uint32_t offset, 
+                                fat_dir_entry_t *entry);
+
+fat_error_t fat_write_dir_entry(fat_volume_t *volume, 
+                                uint32_t sector,
+                                uint32_t offset, 
+                                const fat_dir_entry_t *entry);
+
+cluster_t fat_get_entry_cluster(fat_volume_t *volume, 
+                                const fat_dir_entry_t *entry);
+
+void fat_set_entry_cluster(fat_volume_t *volume, 
+                           fat_dir_entry_t *entry, 
+                           cluster_t cluster);
+
 #endif

@@ -74,7 +74,8 @@ fat_error_t fat_validate_cluster_range(fat_volume_t *volume, cluster_t cluster){
     return FAT_OK;
 }
 
-fat_error_t fat_validate_file_size_limits(fat_volume_t *volume, uint32_t file_size){
+fat_error_t fat_validate_file_size_limits(fat_volume_t *volume, 
+                                          uint32_t file_size){
 
     // parameter validation
     if(!volume) {
@@ -87,7 +88,7 @@ fat_error_t fat_validate_file_size_limits(fat_volume_t *volume, uint32_t file_si
     }
 
     uint32_t max_clusters = volume->total_clusters;
-    uint64_t max_cluster_size = (uint64_t)max_clusters * volume->bytes_per_cluster;
+    uint64_t max_cluster_size=(uint64_t)max_clusters * volume->bytes_per_cluster;
 
     if(file_size > max_cluster_size){
         return FAT_ERR_FILE_TOO_LARGE;
@@ -96,7 +97,8 @@ fat_error_t fat_validate_file_size_limits(fat_volume_t *volume, uint32_t file_si
     return FAT_OK;
 }
 
-fat_error_t fat_validate_cluster_chain(fat_volume_t *volume, cluster_t start_cluster){
+fat_error_t fat_validate_cluster_chain(fat_volume_t *volume, 
+                                       cluster_t start_cluster){
 
     // parameter validation
     if(!volume){
@@ -191,17 +193,19 @@ fat_error_t fat_check_fat_consistency(fat_volume_t *volume){
         uint32_t fat2_sector = fat_start_sector + 
                               (fat_num * volume->fat_size_sectors);
         for(uint32_t sector=0; sector<volume->fat_size_sectors; sector++){
-            int result1 = volume->device->read_sectors(volume->device->device_data,
-                                                       fat1_sector + sector, 1,
-                                                       fat1_buffer);
+            int result1=volume->device->read_sectors(volume->device->device_data,
+                                                     fat1_sector + sector, 
+                                                     1,
+                                                     fat1_buffer);
             if(result1 != 0){
                 result = fat_propagate_device_error(result1);
                 goto cleanup;
             }
 
-            int result2 = volume->device->read_sectors(volume->device->device_data,
-                                                       fat2_sector + sector, 1,
-                                                       fat2_buffer);
+            int result2=volume->device->read_sectors(volume->device->device_data,
+                                                     fat2_sector + sector, 
+                                                     1,
+                                                     fat2_buffer);
             if(result2 != 0){
                 result = fat_propagate_device_error(result2);
                 goto cleanup;
@@ -299,7 +303,8 @@ fat_error_t fat_validate_api_parameters_open(fat_volume_t *volume,
     return FAT_OK;
 }
 
-fat_error_t fat_validate_api_parameters_read(fat_file_t *file, void *buffer, 
+fat_error_t fat_validate_api_parameters_read(fat_file_t *file, 
+                                             void *buffer, 
                                              size_t size){
 
     // parameter validation
@@ -322,7 +327,9 @@ fat_error_t fat_validate_api_parameters_read(fat_file_t *file, void *buffer,
     return FAT_OK;
 }
 
-fat_error_t fat_validate_api_parameters_write(fat_file_t *file, const void *buffer, size_t size){
+fat_error_t fat_validate_api_parameters_write(fat_file_t *file, 
+                                              const void *buffer, 
+                                              size_t size){
 
     // parameter validation
     if(!file){

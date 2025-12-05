@@ -30,7 +30,8 @@ bool fat_validate_delete_permissions(const fat_dir_entry_t *entry){
     return true;
 }
 
-fat_error_t fat_update_free_cluster_count(fat_volume_t *volume, uint32_t clusters_freed){
+fat_error_t fat_update_free_cluster_count(fat_volume_t *volume, 
+                                          uint32_t clusters_freed){
 
     // parameter validation
     if(!volume || volume->type != FAT_TYPE_FAT32){
@@ -47,9 +48,11 @@ fat_error_t fat_update_free_cluster_count(fat_volume_t *volume, uint32_t cluster
     return FAT_OK;
 }
 
-fat_error_t fat_find_lfn_entries(fat_volume_t *volume, cluster_t parent_cluster, 
-                                uint32_t entry_index, uint32_t *lfn_start_index, 
-                                uint32_t *lfn_count){
+fat_error_t fat_find_lfn_entries(fat_volume_t *volume, 
+                                 cluster_t parent_cluster, 
+                                 uint32_t entry_index, 
+                                 uint32_t *lfn_start_index, 
+                                 uint32_t *lfn_count){
 
     // parameter validation
     if(!volume || !lfn_start_index || !lfn_count){
@@ -121,7 +124,9 @@ fat_error_t fat_find_lfn_entries(fat_volume_t *volume, cluster_t parent_cluster,
 
             cluster_t target_cluster = parent_cluster;
             for(uint32_t i=0; i<cluster_index; i++){
-                err = fat_get_next_cluster(volume, target_cluster, &target_cluster);
+                err = fat_get_next_cluster(volume, 
+                                           target_cluster, 
+                                           &target_cluster);
                 if(err != FAT_OK){
                     break;
                 }
@@ -131,7 +136,10 @@ fat_error_t fat_find_lfn_entries(fat_volume_t *volume, cluster_t parent_cluster,
             offset = (current_index % entries_per_cluster) * 32;
         }
 
-        err = fat_read_dir_entry(volume, sector, offset, (fat_dir_entry_t*)&lfn_entry);
+        err = fat_read_dir_entry(volume, 
+                                 sector, 
+                                 offset, 
+                                 (fat_dir_entry_t*)&lfn_entry);
         if(err != FAT_OK){
             break;
         }
@@ -164,8 +172,10 @@ fat_error_t fat_find_lfn_entries(fat_volume_t *volume, cluster_t parent_cluster,
     return FAT_OK;
 }
 
-fat_error_t fat_delete_directory_entries(fat_volume_t *volume, cluster_t parent_cluster, 
-                                         uint32_t entry_index, bool has_lfn){
+fat_error_t fat_delete_directory_entries(fat_volume_t *volume, 
+                                         cluster_t parent_cluster, 
+                                         uint32_t entry_index, 
+                                         bool has_lfn){
 
     // parameter validation
     if(!volume){
@@ -176,8 +186,11 @@ fat_error_t fat_delete_directory_entries(fat_volume_t *volume, cluster_t parent_
 
     if(has_lfn){
         uint32_t lfn_start_index, lfn_count;
-        fat_error_t err = fat_find_lfn_entries(volume, parent_cluster, entry_index, 
-                                               &lfn_start_index, &lfn_count);
+        fat_error_t err = fat_find_lfn_entries(volume, 
+                                               parent_cluster, 
+                                               entry_index, 
+                                               &lfn_start_index, 
+                                               &lfn_count);
         if(err == FAT_OK && lfn_count > 0){
             for(uint32_t i=0; i<lfn_count; i++){
                 uint32_t lfn_index = lfn_start_index + i;
@@ -189,19 +202,22 @@ fat_error_t fat_delete_directory_entries(fat_volume_t *volume, cluster_t parent_
                                       volume->type != FAT_TYPE_FAT32);
                 if(is_root_fat12){
                     // FAT12/16
-                    uint32_t entries_per_sector = volume->bytes_per_sector / 32;
+                    uint32_t entries_per_sector = volume->bytes_per_sector/32;
                     uint32_t root_start = volume->reserved_sector_count + 
-                                          (volume->num_fats * volume->fat_size_sectors);
+                                            (volume->num_fats * 
+                                            volume->fat_size_sectors);
                     sector = root_start + (lfn_index / entries_per_sector);
                     offset = (lfn_index % entries_per_sector) * 32;
                 } else {
                     // FAT32
-                    uint32_t entries_per_cluster = volume->bytes_per_cluster / 32;
+                    uint32_t entries_per_cluster = volume->bytes_per_cluster/32;
                     uint32_t cluster_index = lfn_index / entries_per_cluster;
 
                     cluster_t target_cluster = parent_cluster;
                     for(uint32_t j=0; j<cluster_index; j++){
-                        err = fat_get_next_cluster(volume, target_cluster, &target_cluster);
+                        err = fat_get_next_cluster(volume, 
+                                                   target_cluster, 
+                                                   &target_cluster);
                         if(err != FAT_OK){
                             return err;
                         }
@@ -272,7 +288,8 @@ fat_error_t fat_delete_directory_entries(fat_volume_t *volume, cluster_t parent_
     return result;
 }
 
-fat_error_t fat_delete_file_clusters(fat_volume_t *volume, cluster_t start_cluster){
+fat_error_t fat_delete_file_clusters(fat_volume_t *volume, 
+                                     cluster_t start_cluster){
 
     // parameter validation
     if(!volume || start_cluster < 2){
@@ -286,7 +303,9 @@ fat_error_t fat_delete_file_clusters(fat_volume_t *volume, cluster_t start_clust
 
         // read next cluster
         cluster_t next_cluster;
-        fat_error_t err = fat_get_next_cluster(volume, current_cluster, &next_cluster);
+        fat_error_t err = fat_get_next_cluster(volume, 
+                                               current_cluster, 
+                                               &next_cluster);
         if(err != FAT_OK){
             // cannot read next cluster
             next_cluster = 0;
@@ -330,7 +349,10 @@ fat_error_t fat_unlink(fat_volume_t *volume, const char *path){
     cluster_t parent_cluster;
     uint32_t entry_index;
 
-    fat_error_t err = fat_resolve_path(volume, path, &file_entry, &parent_cluster, 
+    fat_error_t err = fat_resolve_path(volume, 
+                                       path, 
+                                       &file_entry, 
+                                       &parent_cluster, 
                                        &entry_index);
     if(err != FAT_OK){
         // file not found
@@ -352,7 +374,10 @@ fat_error_t fat_unlink(fat_volume_t *volume, const char *path){
 
     bool has_lfn = true;
 
-    err = fat_delete_directory_entries(volume, parent_cluster, entry_index, has_lfn);
+    err = fat_delete_directory_entries(volume, 
+                                       parent_cluster, 
+                                       entry_index, 
+                                       has_lfn);
     if(err != FAT_OK){
         return err;
     }

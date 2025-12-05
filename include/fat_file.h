@@ -17,13 +17,17 @@ typedef struct {
     uint32_t cluster_offset;
 } fat_file_t;
 
-fat_error_t fat_open(fat_volume_t *volume, const char *path, int flags, fat_file_t **file);
+fat_error_t fat_open(fat_volume_t *volume, const char *path, int flags, 
+                     fat_file_t **file);
 
 fat_error_t fat_close(fat_file_t *file);
 
-fat_error_t fat_init_file_handle(fat_file_t *file, fat_volume_t *volume, 
-                                 const fat_dir_entry_t *dir_entry, cluster_t dir_cluster,
-                                uint32_t dir_entry_offset, int flags);
+fat_error_t fat_init_file_handle(fat_file_t *file, 
+                                 fat_volume_t *volume, 
+                                 const fat_dir_entry_t *dir_entry, 
+                                 cluster_t dir_cluster,
+                                 uint32_t dir_entry_offset, 
+                                 int flags);
 
 bool fat_validate_open_flags(int flags, const fat_dir_entry_t *entry);
 

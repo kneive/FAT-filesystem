@@ -24,8 +24,9 @@ bool fat_is_root_directory(const char *path){
      return (strlen(path) == 0);
 }
 
-bool fat_validate_directory_deletion(fat_volume_t *volume, const 
-                                     fat_dir_entry_t *dir_entry, const char *path){
+bool fat_validate_directory_deletion(fat_volume_t *volume, 
+                                     const fat_dir_entry_t *dir_entry, 
+                                     const char *path){
 
     // parameter validation
     if(!volume || !dir_entry){
@@ -52,7 +53,8 @@ bool fat_validate_directory_deletion(fat_volume_t *volume, const
 }
 
 fat_error_t fat_count_directory_entries(fat_volume_t *volume, 
-                                        cluster_t dir_cluster, uint32_t *entry_count){
+                                        cluster_t dir_cluster, 
+                                        uint32_t *entry_count){
 
     // parameter validation
     if(!volume  || !entry_count){
@@ -109,7 +111,8 @@ fat_error_t fat_count_directory_entries(fat_volume_t *volume,
     return FAT_OK;
 }
 
-fat_error_t fat_verify_directory_empty(fat_volume_t *volume, cluster_t dir_cluster){
+fat_error_t fat_verify_directory_empty(fat_volume_t *volume, 
+                                       cluster_t dir_cluster){
 
     // parameter validation
     if(!volume || dir_cluster < 2){
@@ -117,7 +120,9 @@ fat_error_t fat_verify_directory_empty(fat_volume_t *volume, cluster_t dir_clust
     }
 
     uint32_t entry_count;
-    fat_error_t err = fat_count_directory_entries(volume, dir_cluster, &entry_count);
+    fat_error_t err = fat_count_directory_entries(volume, 
+                                                  dir_cluster, 
+                                                  &entry_count);
     if(err != FAT_OK){
         return err;
     }
@@ -131,7 +136,8 @@ fat_error_t fat_verify_directory_empty(fat_volume_t *volume, cluster_t dir_clust
     return FAT_OK;
 }
 
-fat_error_t fat_delete_directory_clusters(fat_volume_t *volume, cluster_t start_cluster){
+fat_error_t fat_delete_directory_clusters(fat_volume_t *volume, 
+                                          cluster_t start_cluster){
 
     // parameter validation
     if(!volume || start_cluster < 2){
@@ -144,7 +150,9 @@ fat_error_t fat_delete_directory_clusters(fat_volume_t *volume, cluster_t start_
     while(current_cluster >= 2 && current_cluster < volume->total_clusters + 2){
 
         cluster_t next_cluster;
-        fat_error_t err = fat_get_next_cluster(volume, current_cluster, &next_cluster);
+        fat_error_t err = fat_get_next_cluster(volume, 
+                                               current_cluster, 
+                                               &next_cluster);
         if(err != FAT_OK){
             // cannot read next cluster - stop
             next_cluster = 0;
@@ -192,7 +200,10 @@ fat_error_t fat_rmdir(fat_volume_t *volume, const char *path){
     cluster_t parent_cluster;
     uint32_t entry_index;
 
-    fat_error_t err = fat_resolve_path(volume, path, &dir_entry, &parent_cluster, 
+    fat_error_t err = fat_resolve_path(volume, 
+                                       path, 
+                                       &dir_entry, 
+                                       &parent_cluster, 
                                        &entry_index);
     if(err != FAT_OK){
         return err;
@@ -218,7 +229,10 @@ fat_error_t fat_rmdir(fat_volume_t *volume, const char *path){
 
     bool has_lfn = true;
 
-    err = fat_delete_directory_entries(volume, parent_cluster, entry_index, has_lfn);
+    err = fat_delete_directory_entries(volume, 
+                                       parent_cluster, 
+                                       entry_index, 
+                                       has_lfn);
     if(err != FAT_OK){
         return err;
     }

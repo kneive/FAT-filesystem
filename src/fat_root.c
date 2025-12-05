@@ -19,7 +19,8 @@ cluster_t fat_get_root_dir_cluster(fat_volume_t *volume){
     }
 }
 
-fat_error_t fat_read_root_dir_fat12(fat_volume_t *volume, fat_dir_entry_t **entries,
+fat_error_t fat_read_root_dir_fat12(fat_volume_t *volume, 
+                                    fat_dir_entry_t **entries,
                                     uint32_t *count){
 
     // parameter validation
@@ -48,7 +49,8 @@ fat_error_t fat_read_root_dir_fat12(fat_volume_t *volume, fat_dir_entry_t **entr
     }
 
     // read root directory sectors
-    uint32_t entries_per_sector = volume->bytes_per_sector / sizeof(fat_dir_entry_t);
+    uint32_t entries_per_sector = volume->bytes_per_sector / 
+                                    sizeof(fat_dir_entry_t);
     uint32_t entry_index = 0;
 
     for(uint32_t sector = 0; sector < root_dir_sectors; sector++){
@@ -73,10 +75,14 @@ fat_error_t fat_read_root_dir_fat12(fat_volume_t *volume, fat_dir_entry_t **entr
             return FAT_ERR_DEVICE_ERROR;
         }
 
-        for (uint32_t i = 0; i < entries_per_sector && entry_index < total_entries; i++){
+        for (uint32_t i=0; i < entries_per_sector && 
+                           entry_index < total_entries; i++)
+        {
+
             memcpy(&(*entries)[entry_index], 
                      &sector_buffer[i * sizeof(fat_dir_entry_t)], 
                      sizeof(fat_dir_entry_t));
+            
             entry_index++;
         }
 
@@ -85,7 +91,8 @@ fat_error_t fat_read_root_dir_fat12(fat_volume_t *volume, fat_dir_entry_t **entr
     return FAT_OK;
 }
 
-fat_error_t fat_read_root_dir_fat32(fat_volume_t *volume, fat_dir_entry_t **entries, 
+fat_error_t fat_read_root_dir_fat32(fat_volume_t *volume, 
+                                    fat_dir_entry_t **entries, 
                                     uint32_t *count){
 
     // parameter validation
@@ -107,7 +114,9 @@ fat_error_t fat_read_root_dir_fat32(fat_volume_t *volume, fat_dir_entry_t **entr
 
         // get next cluster
         cluster_t next_cluster;
-        fat_error_t err = fat_get_next_cluster(volume, current_cluster, &next_cluster);
+        fat_error_t err = fat_get_next_cluster(volume, 
+                                               current_cluster, 
+                                               &next_cluster);
         if(err != FAT_OK){
             return err;
         }
@@ -131,7 +140,8 @@ fat_error_t fat_read_root_dir_fat32(fat_volume_t *volume, fat_dir_entry_t **entr
     }
 
     // calculate total entries
-    uint32_t entries_per_cluster = volume->bytes_per_cluster / sizeof(fat_dir_entry_t);
+    uint32_t entries_per_cluster = volume->bytes_per_cluster / 
+                                        sizeof(fat_dir_entry_t);
     uint32_t total_entries = cluster_count * entries_per_cluster;
     *count = total_entries;
 
@@ -169,10 +179,14 @@ fat_error_t fat_read_root_dir_fat32(fat_volume_t *volume, fat_dir_entry_t **entr
             return FAT_ERR_DEVICE_ERROR;
         }
 
-        for(uint32_t j = 0; j < entries_per_cluster && entry_index < total_entries; j++){
+        for(uint32_t j = 0; j < entries_per_cluster && 
+                            entry_index < total_entries; j++)
+        {
+
             memcpy(&(*entries)[entry_index],
                     &cluster_buffer[j * sizeof(fat_dir_entry_t)],
                     sizeof(fat_dir_entry_t));
+
             entry_index++;
         }
 
@@ -181,7 +195,9 @@ fat_error_t fat_read_root_dir_fat32(fat_volume_t *volume, fat_dir_entry_t **entr
         // get next cluster
         if(i < cluster_count - 1){
             cluster_t next_cluster;
-            fat_error_t err = fat_get_next_cluster(volume, current_cluster, &next_cluster);
+            fat_error_t err = fat_get_next_cluster(volume, 
+                                                   current_cluster, 
+                                                   &next_cluster);
             if(err != FAT_OK){
                 free(*entries);
                 *entries = NULL;

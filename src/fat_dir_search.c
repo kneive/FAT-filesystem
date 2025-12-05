@@ -56,8 +56,11 @@ bool fat_compare_short_name(const uint8_t *short_name, const char *filename){
     return true;
 }
 
-fat_error_t fat_find_entry (fat_volume_t *volume, cluster_t dir_cluster, const char *name,
-                            fat_dir_entry_t *entry, uint32_t *entry_index){
+fat_error_t fat_find_entry (fat_volume_t *volume, 
+                            cluster_t dir_cluster, 
+                            const char *name,
+                            fat_dir_entry_t *entry, 
+                            uint32_t *entry_index){
 
     // parameter validation
     if(!volume || !name || !entry){
@@ -137,7 +140,7 @@ fat_error_t fat_find_entry (fat_volume_t *volume, cluster_t dir_cluster, const c
                 break; // FAT12/16 root directory is of fixed size
             }
 
-            fat_dir_entry_t *current_entry = (fat_dir_entry_t *)&read_buffer[i * 32];
+            fat_dir_entry_t *current_entry = (fat_dir_entry_t*)&read_buffer[i*32];
 
             if(current_entry->name[0] == FAT_DIR_ENTRY_FREE){
                 free(read_buffer);
@@ -211,7 +214,8 @@ fat_error_t fat_find_entry (fat_volume_t *volume, cluster_t dir_cluster, const c
 
         // next cluster
         if(!is_root_fat12){
-            fat_error_t err = fat_get_next_cluster (volume, current_cluster, 
+            fat_error_t err = fat_get_next_cluster (volume, 
+                                                    current_cluster, 
                                                     &current_cluster);
 
             if(err != FAT_OK){
@@ -222,15 +226,19 @@ fat_error_t fat_find_entry (fat_volume_t *volume, cluster_t dir_cluster, const c
 
         // update entry index
         if(is_root_fat12){
-            entry_idx = ((entry_idx / entries_per_sector) + 1) * entries_per_sector;
+            entry_idx = ((entry_idx / entries_per_sector) + 1) * 
+                          entries_per_sector;
         } else {
-            entry_idx = ((entry_idx / entries_per_cluster) + 1) * entries_per_cluster;
+            entry_idx = ((entry_idx / entries_per_cluster) + 1) * 
+                          entries_per_cluster;
         }
     }
 }
 
-fat_error_t fat_iterate_directory(fat_volume_t *volume, cluster_t dir_cluster,
-                                  fat_dir_iterator_callback callback, void *user_data){
+fat_error_t fat_iterate_directory(fat_volume_t *volume, 
+                                  cluster_t dir_cluster,
+                                  fat_dir_iterator_callback callback, 
+                                  void *user_data){
 
 
     // parameter validation
@@ -271,8 +279,10 @@ fat_error_t fat_iterate_directory(fat_volume_t *volume, cluster_t dir_cluster,
             sectors_to_read = 1;
             entries_in_buffer = entries_per_sector;
 
-            int result = volume->device->read_sectors(volume->device->device_data, sector,
-                                                      sectors_to_read, read_buffer);
+            int result = volume->device->read_sectors(volume->device->device_data, 
+                                                      sector,
+                                                      sectors_to_read, 
+                                                      read_buffer);
             
             if(result != 0){
                 free(read_buffer);
@@ -288,7 +298,9 @@ fat_error_t fat_iterate_directory(fat_volume_t *volume, cluster_t dir_cluster,
             entries_in_buffer = entries_per_cluster;
 
             int result = volume->device->read_sectors(volume->device->device_data,
-                                                      sector, sectors_to_read, read_buffer);
+                                                      sector, 
+                                                      sectors_to_read, 
+                                                      read_buffer);
 
             if(result!=0){
                 free(read_buffer);
@@ -302,7 +314,7 @@ fat_error_t fat_iterate_directory(fat_volume_t *volume, cluster_t dir_cluster,
             if(is_root_fat12 && entry_idx >= max_root_entries){
                 break;
             }
-            fat_dir_entry_t *current_entry = (fat_dir_entry_t *)&read_buffer[i * 32];
+            fat_dir_entry_t *current_entry = (fat_dir_entry_t*)&read_buffer[i*32];
 
             // check for end of directory
             if(current_entry->name[0] == FAT_DIR_ENTRY_FREE){
@@ -344,7 +356,10 @@ fat_error_t fat_iterate_directory(fat_volume_t *volume, cluster_t dir_cluster,
             }
 
             // call the callback 
-            fat_error_t err = callback(current_entry, long_name, entry_idx, user_data);
+            fat_error_t err = callback(current_entry, 
+                                       long_name, 
+                                       entry_idx, 
+                                       user_data);
             if(err != FAT_OK){
                 free(read_buffer);
                 return err; // callback requested stop
@@ -354,7 +369,9 @@ fat_error_t fat_iterate_directory(fat_volume_t *volume, cluster_t dir_cluster,
 
         // move to next cluster
         if(!is_root_fat12){
-            fat_error_t err = fat_get_next_cluster(volume, current_cluster, &current_cluster);
+            fat_error_t err = fat_get_next_cluster(volume, 
+                                                   current_cluster, 
+                                                   &current_cluster);
             if(err != FAT_OK){
                 free(read_buffer);
                 return err;
@@ -362,9 +379,11 @@ fat_error_t fat_iterate_directory(fat_volume_t *volume, cluster_t dir_cluster,
         }
 
         if(is_root_fat12){
-            entry_idx = ((entry_idx / entries_per_sector) + 1) * entries_per_sector;
+            entry_idx = ((entry_idx / entries_per_sector) + 1) * 
+                          entries_per_sector;
         } else {
-            entry_idx = ((entry_idx / entries_per_cluster) + 1) * entries_per_cluster;
+            entry_idx = ((entry_idx / entries_per_cluster) + 1) * 
+                          entries_per_cluster;
         }
     }
 
@@ -418,7 +437,9 @@ fat_error_t fat_find_free_entry(fat_volume_t *volume, cluster_t dir_cluster,
             entries_in_buffer = entries_per_sector;
 
             int result = volume->device->read_sectors(volume->device->device_data,
-                                                      sector, sectors_to_read, read_buffer);
+                                                      sector, 
+                                                      sectors_to_read, 
+                                                      read_buffer);
 
             if(result != 0){
                 free(read_buffer);
@@ -437,7 +458,9 @@ fat_error_t fat_find_free_entry(fat_volume_t *volume, cluster_t dir_cluster,
             entries_in_buffer = entries_per_cluster;
 
             int result = volume->device->read_sectors(volume->device->device_data,
-                                                      sector, sectors_to_read, read_buffer);
+                                                      sector, 
+                                                      sectors_to_read, 
+                                                      read_buffer);
             
             if(result != 0){
                 free(read_buffer);
@@ -452,7 +475,7 @@ fat_error_t fat_find_free_entry(fat_volume_t *volume, cluster_t dir_cluster,
                 break;
             }
 
-            fat_dir_entry_t *current_entry = (fat_dir_entry_t *)&read_buffer[i * 32];
+            fat_dir_entry_t *current_entry = (fat_dir_entry_t*)&read_buffer[i*32];
             
             // check if entry is free
             if(current_entry->name[0] == FAT_DIR_ENTRY_FREE || 
@@ -475,7 +498,9 @@ fat_error_t fat_find_free_entry(fat_volume_t *volume, cluster_t dir_cluster,
 
             // move to next cluster
             if(!is_root_fat12){
-                fat_error_t err = fat_get_next_cluster(volume, current_cluster, &current_cluster);
+                fat_error_t err = fat_get_next_cluster(volume, 
+                                                       current_cluster, 
+                                                       &current_cluster);
                 if(err != FAT_OK){
                     free(read_buffer);
                     return err;
@@ -483,9 +508,11 @@ fat_error_t fat_find_free_entry(fat_volume_t *volume, cluster_t dir_cluster,
             }
 
             if(is_root_fat12){
-                entry_idx = ((entry_idx / entries_per_sector) + 1) * entries_per_sector;
+                entry_idx = ((entry_idx / entries_per_sector) + 1) * 
+                              entries_per_sector;
             } else {
-                entry_idx = ((entry_idx / entries_per_cluster) + 1) * entries_per_cluster;
+                entry_idx = ((entry_idx / entries_per_cluster) + 1) * 
+                              entries_per_cluster;
             }
         }
     }
