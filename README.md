@@ -16,11 +16,11 @@ project
 │
 ├──include
 │
+├──resources        # test image
+│
 ├──src
 │   │
 │   └──driver.c     # test driver
-│
-├──fat32.img        # test image
 │
 └──Makefile
 ```
