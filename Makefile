@@ -38,7 +38,7 @@ TEST_BIN = $(BUILD_DIR)/test_fat
 # ============================================================================
 
 # Default target: build everything
-all: $(LIB)
+all: $(LIB) driver
 
 # Build the static library
 # WHY STATIC LIBRARY: Easy to link into other projects
@@ -85,4 +85,12 @@ help:
 	@echo "  dirs   - Create project directory structure"
 	@echo "  help   - Show this help message"
 
-.PHONY: all test clean dirs help
+# executable
+DRIVER = $(BUILD_DIR)/driver
+
+# build
+driver: $(LIB)
+		$(CC) $(CFLAGS) $(SRC_DIR)/driver.c -o $(DRIVER) -L$(BUILD_DIR) -lfat
+		@echo "Build driver: $(DRIVER)"
+
+.PHONY: all test clean dirs help driver

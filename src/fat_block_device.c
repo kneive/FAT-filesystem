@@ -72,10 +72,21 @@ fat_block_device_t * fat_block_device_file_create(const char *filename,
         dev->file = fopen(filename, "w+b");
     }
 
+    if(!dev->file){
+        free(dev);
+        return NULL;
+    }
+
     dev->sector_count = sector_count;
     dev->sector_size = FAT_SECTOR_SIZE;
 
     fat_block_device_t *block_dev = malloc(sizeof(fat_block_device_t));
+    if(!block_dev){
+        fclose(dev->file);
+        free(dev);
+        return NULL;
+    }
+
     block_dev->read_sectors = file_read_sectors;
     block_dev->write_sectors = file_write_sectors;
     block_dev->get_sector_count = file_get_sector_count;

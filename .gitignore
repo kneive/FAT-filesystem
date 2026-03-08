@@ -5,7 +5,7 @@
 /driver
 
 # all images
-*.img
+#*.img
 
 # all pdf
 *.pdf
