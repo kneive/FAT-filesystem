@@ -170,3 +170,26 @@ fat_block_device_t *fat_block_device_memory_create(uint32_t sector_count){
 
     return block_dev;
 }
+
+void fat_block_device_destroy(fat_block_device_t *device){
+    if(!device){
+        return;
+    }
+
+    if (device->read_sectors == memory_read_sectors){
+        memory_block_device_t *dev = (memory_block_device_t *)device->device_data;
+        if(dev){
+            free(dev->memory);
+            free(dev);
+        }
+    } else if(device->read_sectors == file_read_sectors){
+        file_block_device_t *dev = (file_block_device_t *)device->device_data;
+        if(dev){
+            if(dev->file){
+                fclose(dev->file);
+            }
+            free(dev);
+        }
+    }
+    free(device);
+}
