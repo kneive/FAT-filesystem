@@ -320,7 +320,8 @@ fat_error_t fat_validate_api_parameters_read(fat_file_t *file,
         return FAT_OK;
     }
 
-    if(!(file->flags & (FAT_O_RDONLY | FAT_O_RDWR))){
+    int access_mode = file->flags & 0x03;
+    if(access_mode != FAT_O_RDONLY && access_mode != FAT_O_RDWR){
         return FAT_ERR_INVALID_PARAM;
     }
 
@@ -345,7 +346,8 @@ fat_error_t fat_validate_api_parameters_write(fat_file_t *file,
         return FAT_OK;
     }
 
-    if(!(file->flags & (FAT_O_WRONLY | FAT_O_RDWR))){
+    int access_mode = file->flags & 0x03;
+    if(access_mode != FAT_O_WRONLY && access_mode != FAT_O_RDWR){
         return FAT_ERR_INVALID_PARAM;
     }
 
